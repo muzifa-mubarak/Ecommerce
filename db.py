@@ -223,8 +223,8 @@ def del_product(product_id:int):
         cursor.close()
         conn.close()
         return{
-            "status":"sucess",
-            "status_code":200,
+            "status":"error",
+            "status_code":400,
             "message":f"The product with product id {product_id} not available "
         }
     cursor.execute("delete from products where product_id=%s",(product_id,))
