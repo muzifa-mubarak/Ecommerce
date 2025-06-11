@@ -263,7 +263,19 @@ def del_product(product_id:int):
         "status_code":200,
         "message":f"Deleted product id {product_id} from product table "
     }
-    
+
+@app.get("/fetch-order")
+def fetch_order():
+    conn=get_db_connections()
+    cursor=conn.cursor()
+    cursor.execute("Select * from orders")
+    rows = cursor.fetchall()
+    col_names = [desc[0] for desc in cursor.description]
+    cursor.close()
+    conn.close()
+    result = [dict(zip(col_names, row)) for row in rows]
+    return {"orders": result}
+   
 
 @app.post("/place-order")
 def place_order(orders: List[Order]):
