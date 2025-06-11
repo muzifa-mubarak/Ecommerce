@@ -1,0 +1,122 @@
+CREATE TABLE users (
+    user_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_name VARCHAR(50),
+    user_phoneno BIGINT UNIQUE,
+    user_address VARCHAR(50)
+);
+
+INSERT INTO users (user_name, user_phoneno, user_address) VALUES
+('Aarav Sharma', 9876543210, 'Delhi'),
+('Meera Iyer', 9123456789, 'Chennai'),
+('Rohan Desai', 9988776655, 'Mumbai'),
+('Sneha Reddy', 9012345678, 'Hyderabad'),
+('Karthik Nair', 9900112233, 'Bangalore'),
+('Anjali Mehta', 9812345670, 'Ahmedabad'),
+('Vikram Singh', 9765432109, 'Jaipur'),
+('Divya Pillai', 9834567890, 'Kochi'),
+('Rajeev Menon', 9789012345, 'Pune'),
+('Pooja Verma', 9876001234, 'Bhopal');
+
+CREATE TABLE products (
+    product_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    product_name VARCHAR(100),
+    price DECIMAL(10, 2),
+    stock INT
+);
+
+INSERT INTO products (product_name, price, stock) VALUES
+('Wireless Mouse', 499.99, 120),
+('Bluetooth Headphones', 1499.50, 80),
+('Laptop Stand', 899.00, 60),
+('Mechanical Keyboard', 2399.99, 40),
+('USB-C Charger', 799.75, 100),
+('Webcam 1080p', 1299.00, 50),
+('Portable SSD 1TB', 5499.00, 35),
+('Smartwatch Series 5', 9999.99, 25),
+('Gaming Chair', 15999.00, 10),
+('Noise Cancelling Earbuds', 2999.50, 45);
+
+CREATE TABLE orders (
+    order_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id INT REFERENCES users(user_id),
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total_amount DECIMAL(10, 2)
+);
+INSERT INTO orders (user_id, total_amount) VALUES
+(1, 2499.99),
+(2, 4999.00),
+(3, 1299.50),
+(4, 799.00),
+(5, 15999.00),
+(1, 299.00),
+(3, 949.75),
+(2, 3499.99),
+(4, 699.50),
+(5, 499.00);
+
+CREATE TABLE cart (
+    cart_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id INT REFERENCES users(user_id),
+    product_id INT REFERENCES products(product_id),
+    quantity INT
+);
+
+INSERT INTO cart (user_id, product_id, quantity) VALUES
+(1, 2, 1),
+(2, 4, 2),
+(3, 1, 1),
+(4, 3, 3),
+(5, 5, 1),
+(1, 6, 2),
+(2, 7, 1),
+(3, 8, 2),
+(4, 9, 1),
+(5, 10, 4);
+
+select * from cart;
+
+select user_name from users where user_id=(select user_id from cart where product_id=4);
+SELECT 
+    users.user_name,
+    products.product_name,
+    cart.quantity,
+    products.price,
+    (cart.quantity * products.price) AS total_price
+FROM 
+    cart
+INNER JOIN users ON cart.user_id = users.user_id
+INNER JOIN products ON cart.product_id = products.product_id;
+
+select * from users;
+select * from products;
+select * from orders;
+
+ALTER TABLE orders
+ADD COLUMN product_id INT REFERENCES products(product_id),
+ADD COLUMN order_status VARCHAR(20) DEFAULT 'Pending',
+ADD COLUMN delivery_address VARCHAR(100);
+
+-- Example product assignments (adjust as you prefer)
+UPDATE orders SET product_id = 1 WHERE order_id = 1;
+UPDATE orders SET product_id = 2 WHERE order_id = 2;
+UPDATE orders SET product_id = 3 WHERE order_id = 3;
+UPDATE orders SET product_id = 4 WHERE order_id = 4;
+UPDATE orders SET product_id = 5 WHERE order_id = 5;
+UPDATE orders SET product_id = 6 WHERE order_id = 6;
+UPDATE orders SET product_id = 7 WHERE order_id = 7;
+UPDATE orders SET product_id = 8 WHERE order_id = 8;
+UPDATE orders SET product_id = 9 WHERE order_id = 9;
+UPDATE orders SET product_id = 10 WHERE order_id = 10;
+
+UPDATE orders
+SET delivery_address = (
+    SELECT user_address
+    FROM users
+    WHERE users.user_id = orders.user_id
+);
+
+UPDATE orders SET order_status = 'Pending';
+
+select * from orders;
+
+dpg-d14hvru3jp1c73begj3g-a.singapore-postgres.render.com

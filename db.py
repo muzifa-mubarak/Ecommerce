@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import psycopg2
 from datetime import datetime
 from fastapi.responses import JSONResponse
+import os
 
 
 app=FastAPI()
@@ -57,7 +58,13 @@ def get_db_connections():
         host="dpg-d14hvru3jp1c73begj3g-a.singapore-postgres.render.com",
         port="5432"  
     )
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("db:app", host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
 
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Ecommerce API"}
 
 @app.post("/create-user")
 def create_user(users: List[User]):
