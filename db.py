@@ -193,6 +193,7 @@ def prod_update(products:List[Product]):
                 "status_code": 400,
                 "message": "Provide product_id for update"
             }
+    for product in products:
         cursor.execute("Update products set product_name=%s,price=%s,stock=%s where product_id=%s returning product_id,product_name,price,stock",
                        (product.product_name,product.price,product.stock,product.product_id))
         
