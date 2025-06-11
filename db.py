@@ -265,10 +265,10 @@ def del_product(product_id:int):
     }
 
 @app.get("/fetch-order")
-def fetch_order():
+def fetch_or():
     conn=get_db_connections()
     cursor=conn.cursor()
-    cursor.execute("Select * from orders")
+    cursor.execute("select * from orders")
     rows = cursor.fetchall()
     col_names = [desc[0] for desc in cursor.description]
     cursor.close()
