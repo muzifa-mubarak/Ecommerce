@@ -165,8 +165,7 @@ def create_product(products:List[Products]):
     return {
         "status":"sucess",
         "status_code": 200,
-        "message":f"the given product 
-        is updated"
+        "message":"the given product is updated"
     }
 
 @app.get("/fetch-product")
