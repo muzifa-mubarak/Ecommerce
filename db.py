@@ -187,10 +187,17 @@ def prod_update(products:List[Product]):
     conn=get_db_connections()
     cursor=conn.cursor()
     for product in products:
+        if not product.product_id:
+            return {
+                "status": "error",
+                "status_code": 400,
+                "message": "Provide product_id for update"
+            }
         cursor.execute("Update products set product_name=%s,price=%s,stock=%s where product_id=%s returning product_id,product_name,price,stock",
                        (product.product_name,product.price,product.stock,product.product_id))
         
         result=cursor.fetchone()
+
         if result:
             updated.append({
                 "product_id":result[0],
