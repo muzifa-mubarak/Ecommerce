@@ -182,45 +182,50 @@ def fetch():
 
 
 @app.put("/update-product")
-def prod_update(products:List[Product]):
-    updated=[]
-    conn=get_db_connections()
-    cursor=conn.cursor()
+def prod_update(products: List[Product]):
     for product in products:
         if not product.product_id:
             return {
                 "status": "error",
                 "status_code": 400,
-                "message": "Provide product_id for update"
+                "message": "Provide product_id for all products to update"
             }
-    for product in products:
-        cursor.execute("Update products set product_name=%s,price=%s,stock=%s where product_id=%s returning product_id,product_name,price,stock",
-                       (product.product_name,product.price,product.stock,product.product_id))
-        
-        result=cursor.fetchone()
 
+    updated = []
+    conn = get_db_connections()
+    cursor = conn.cursor()
+
+    for product in products:
+        cursor.execute(
+            "UPDATE products SET product_name=%s, price=%s, stock=%s WHERE product_id=%s RETURNING product_id, product_name, price, stock",
+            (product.product_name, product.price, product.stock, product.product_id)
+        )
+        result = cursor.fetchone()
         if result:
             updated.append({
-                "product_id":result[0],
-                "product_name":result[1],
-                "price":result[2],
-                "stock":result[3]
+                "product_id": result[0],
+                "product_name": result[1],
+                "price": result[2],
+                "stock": result[3]
             })
+
     conn.commit()
     cursor.close()
     conn.close()
 
     if not updated:
         return {
-            "status":"error",
+            "status": "error",
             "status_code": 400,
             "updated_users": updated
         }
 
     return {
         "status": "success",
+        "status_code": 200,
         "updated_users": updated
     }
+
 
 @app.delete("/delete-product/{product_id}")
 def del_product(product_id:int):
