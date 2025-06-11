@@ -133,7 +133,7 @@ def fetch_user():
     cursor.close()
     conn.close()
     result = [dict(zip(col_names, row)) for row in rows]
-    return {"products": result}
+    return {"users": result}
 
 
 @app.delete("/delete-user/{user_id}")
