@@ -122,6 +122,20 @@ def update_users(users: List[Users]):
         "updated_users": updated
     }
 
+
+@app.get("/fetch-user")
+def fetch_user():
+    conn=get_db_connections()
+    cursor=conn.cursor()
+    cursor.execute("Select * from users")
+    rows = cursor.fetchall()
+    col_names = [desc[0] for desc in cursor.description]
+    cursor.close()
+    conn.close()
+    result = [dict(zip(col_names, row)) for row in rows]
+    return {"products": result}
+
+
 @app.delete("/delete-user/{user_id}")
 def delete_user(user_id: int):
     conn = get_db_connections()
