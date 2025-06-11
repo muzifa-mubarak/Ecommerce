@@ -51,12 +51,13 @@ class Cart(BaseModel):
 
 def get_db_connections():
     return psycopg2.connect(
-        host="localhost",
-        dbname="ecommdb",       
-        user="postgres",
-        password="1234",       
-        port="5433"
+        dbname="ecommerce_bx3f",
+        user="muzifa",
+        password="QZ1rEEY6pRiaYdtGNAsiNoW5lqmp0oY2",
+        host="dpg-d14hvru3jp1c73begj3g-a.singapore-postgres.render.com",
+        port="5432"  
     )
+
 
 @app.post("/create-user")
 def create_user(users: List[User]):
