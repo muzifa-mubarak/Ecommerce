@@ -1,13 +1,25 @@
-from fastapi import FastAPI,Body,HTTPException,status
+from fastapi import FastAPI,Body,HTTPException,status,Request
 from typing import List,Optional
 from pydantic import BaseModel
 import psycopg2
 from datetime import datetime
 from fastapi.responses import JSONResponse
 import os
+from fastapi.exceptions import RequestValidationError
 
 
 app=FastAPI()
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=400,
+        content={
+            "status": "error",
+            "status_code": 400,
+            "message": "Invalid or missing values in request"
+        }
+    )
 
 class User(BaseModel):
     user_name:str
