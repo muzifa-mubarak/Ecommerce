@@ -169,6 +169,14 @@ def create_product(products:List[Products]):
     conn=get_db_connections()
     cursor=conn.cursor()
     for product in products:
+        if product.product_name.strip() == "" or product.price is None or product.stock is None:
+            cursor.close()
+            conn.close()
+            return {
+                "status": "error",
+                "status_code": 400,
+                "message": "empty values are passed"
+            }
         cursor.execute(
         "Insert into products(product_name, price, stock) VALUES (%s,%s,%s)",
         (product.product_name,product.price,product.stock)
@@ -334,6 +342,16 @@ def cancel_order(products: List[ProductToDelete]):
     not_found_products = []
 
     for p in products:
+        if p.product_id is None or str(p.product_id).strip() == "" or \
+           p.user_id is None or str(p.user_id).strip() == "":
+            cursor.close()
+            conn.close()
+            return {
+                "status": "error",
+                "status_code": 400,
+                "message": "empty values are passed"
+            }
+
         cursor.execute(
             "SELECT * FROM cart WHERE product_id = %s AND user_id = %s",
             (p.product_id, p.user_id)
@@ -352,10 +370,9 @@ def cancel_order(products: List[ProductToDelete]):
     conn.close()
 
     return {
-            "status": "success",
-            "status_code": 200,
-            "message": f"Deleted products from user's cart.",
-        }
-
-
-
+        "status": "success",
+        "status_code": 200,
+        "message": "Deleted products from user's cart.",
+        "deleted_products": deleted_products,
+        "not_found_products": not_found_products
+    }
