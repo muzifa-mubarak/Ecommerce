@@ -13,6 +13,9 @@ from db import SessionLocal
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 import auth
+from fastapi.security import OAuth2PasswordRequestForm,OAuth2PasswordBearer
+from auth import login_for_access_token
+
 
 app=FastAPI()
 app.include_router(auth.router)
@@ -93,6 +96,10 @@ if __name__ == "__main__":
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Ecommerce API"}
+
+@app.post("/token")
+async def generate_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency):
+    return await login_for_access_token(form_data, db)
 
 @app.post("/create-user")
 def create_user(users: List[User],current_user: Annotated[dict, Depends(get_current_user)]):
