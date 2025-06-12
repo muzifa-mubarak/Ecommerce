@@ -46,7 +46,7 @@ class Products(BaseModel):
 class Order(BaseModel):
     user_id: int
     product_id: int
-    total_amount: float
+    total_amount: Optional[float]=None
     order_status: Optional[str] = "Pending"
     delivery_address: Optional[str] = None
     order_date: Optional[datetime] = None
