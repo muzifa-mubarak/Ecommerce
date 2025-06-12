@@ -164,30 +164,52 @@ def delete_user(user_id: int):
         "message": f"User with ID {user_id} deleted successfully"
     }
 
+from fastapi.responses import JSONResponse
+from typing import List
+
 @app.post("/create-product")
-def create_product(products:List[Products]):
-    conn=get_db_connections()
-    cursor=conn.cursor()
+def create_product(products: List[Products]):
+    conn = get_db_connections()
+    cursor = conn.cursor()
+
     for product in products:
-        if product.product_name.strip() == "" or product.price is None or product.stock is None:
+        try:
+            if product.product_name.strip() == "" or product.price is None or product.stock is None:
+                cursor.close()
+                conn.close()
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "status": "error",
+                        "status_code": 400,
+                        "message": "empty values are passed"
+                    }
+                )
+        except:
             cursor.close()
             conn.close()
-            return {
-                "status": "error",
-                "status_code": 400,
-                "message": "empty values are passed"
-            }
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "status": "error",
+                    "status_code": 400,
+                    "message": "Invalid or missing values in request"
+                }
+            )
+
         cursor.execute(
-        "Insert into products(product_name, price, stock) VALUES (%s,%s,%s)",
-        (product.product_name,product.price,product.stock)
-    )
+            "INSERT INTO products(product_name, price, stock) VALUES (%s, %s, %s)",
+            (product.product_name, product.price, product.stock)
+        )
+
     conn.commit()
     cursor.close()
     conn.close()
+
     return {
-        "status":"sucess",
+        "status": "success",
         "status_code": 200,
-        "message":"the given product is updated"
+        "message": "the given product is updated"
     }
 
 @app.get("/fetch-product")
