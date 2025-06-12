@@ -1,14 +1,21 @@
-from fastapi import FastAPI,Body,HTTPException,status,Request
-from typing import List,Optional
+from fastapi import FastAPI,Body,HTTPException,status,Request,Depends
+from typing import List,Optional,Annotated
 from pydantic import BaseModel
 import psycopg2
 from datetime import datetime
 from fastapi.responses import JSONResponse
 import os
 from fastapi.exceptions import RequestValidationError
-
+from auth import get_current_user
+from sqlalchemy.orm import Session
+from typing import Annotated
+from db import SessionLocal 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+import auth
 
 app=FastAPI()
+app.include_router(auth.router)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -20,6 +27,14 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "message": "Invalid or missing values in request"
         }
     )
+def get_db():
+    db=SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+db_dependency=Annotated[Session,Depends(get_db)]
 
 class User(BaseModel):
     user_name:str
@@ -70,6 +85,7 @@ def get_db_connections():
         host="dpg-d14hvru3jp1c73begj3g-a.singapore-postgres.render.com",
         port="5432"  
     )
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("db:app", host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
@@ -79,7 +95,7 @@ def read_root():
     return {"message": "Welcome to the Ecommerce API"}
 
 @app.post("/create-user")
-def create_user(users: List[User]):
+def create_user(users: List[User],current_user: Annotated[dict, Depends(get_current_user)]):
     conn = get_db_connections()
     cursor = conn.cursor()
     for user in users:
@@ -94,7 +110,7 @@ def create_user(users: List[User]):
 
 
 @app.put("/update-users")
-def update_users(users: List[Users]):
+def update_users(users: List[Users],current_user: Annotated[dict, Depends(get_current_user)]):
     conn = get_db_connections()
     cursor = conn.cursor()
     updated = []
@@ -149,7 +165,7 @@ def fetch_user():
 
 
 @app.delete("/delete-user/{user_id}")
-def delete_user(user_id: int):
+def delete_user(user_id: int,current_user: Annotated[dict, Depends(get_current_user)]):
     conn = get_db_connections()
     cursor = conn.cursor()
 
@@ -179,7 +195,7 @@ def delete_user(user_id: int):
 from fastapi.responses import JSONResponse
 
 @app.post("/create-product")
-def create_product(products: List[Products]):
+def create_product(products: List[Products],current_user: Annotated[dict, Depends(get_current_user)]):
     conn = get_db_connections()
     cursor = conn.cursor()
 
@@ -238,7 +254,7 @@ def fetch():
 
 
 @app.put("/update-product")
-def prod_update(products: List[Product]):
+def prod_update(products: List[Product],current_user: Annotated[dict, Depends(get_current_user)]):
     for product in products:
         if not product.product_id:
             return {
@@ -284,7 +300,7 @@ def prod_update(products: List[Product]):
 
 
 @app.delete("/delete-product/{product_id}")
-def del_product(product_id:int):
+def del_product(product_id:int,current_user: Annotated[dict, Depends(get_current_user)]):
     conn=get_db_connections()
     cursor=conn.cursor()
     cursor.execute("SELECT * FROM products WHERE product_id = %s", (product_id,))
@@ -320,7 +336,7 @@ def fetch_or():
    
 
 @app.post("/place-order")
-def place_order(orders: List[Order]):
+def place_order(orders: List[Order],current_user: Annotated[dict, Depends(get_current_user)]):
     conn = get_db_connections()
     cursor = conn.cursor()
 
@@ -368,7 +384,7 @@ def place_order(orders: List[Order]):
     }
 
 @app.delete("/cancel-order")
-def cancel_order(products: List[ProductToDelete]):
+def cancel_order(products: List[ProductToDelete],current_user: Annotated[dict, Depends(get_current_user)]):
     conn = get_db_connections()
     cursor = conn.cursor()
 
