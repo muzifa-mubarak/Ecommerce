@@ -165,7 +165,6 @@ def delete_user(user_id: int):
     }
 
 from fastapi.responses import JSONResponse
-from typing import List
 
 @app.post("/create-product")
 def create_product(products: List[Products]):
@@ -178,7 +177,7 @@ def create_product(products: List[Products]):
                 cursor.close()
                 conn.close()
                 return JSONResponse(
-                    status_code=200,
+                    status_code=400,
                     content={
                         "status": "error",
                         "status_code": 400,
@@ -189,7 +188,7 @@ def create_product(products: List[Products]):
             cursor.close()
             conn.close()
             return JSONResponse(
-                status_code=200,
+                status_code=400,
                 content={
                     "status": "error",
                     "status_code": 400,
@@ -211,6 +210,7 @@ def create_product(products: List[Products]):
         "status_code": 200,
         "message": "the given product is updated"
     }
+
 
 @app.get("/fetch-product")
 def fetch():
