@@ -15,10 +15,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 def get_db_connections():
     return psycopg2.connect(
-        dbname="ecommerce_bx3f",
+        dbname="",
         user="muzifa",
-        password="QZ1rEEY6pRiaYdtGNAsiNoW5lqmp0oY2",
-        host="dpg-d14hvru3jp1c73begj3g-a.singapore-postgres.render.com",
+        password="",
+        host="",
         port="5432"  
     )
 
@@ -77,7 +77,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-class User(BaseModel):
+class Username(BaseModel):
     username:str
     password:str
 
@@ -89,7 +89,7 @@ def printit():
 
 
 @app.post("/tokens")
-def login(form_data:User):
+def login(form_data:Username):
     '''return {
         "hi":200
     }'''
@@ -100,7 +100,7 @@ def login(form_data:User):
     return {"access_token": access_token,"auth":True, "token_type": "bearer"}
  
 @app.post("/register", status_code=201)
-def register(user: User):
+def register(user: Username):
     conn = get_db_connections()
     cursor = conn.cursor()
 
@@ -133,5 +133,3 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 @app.get("/protected")
 def protected_route(current_user: dict = Depends(get_current_user)):
     return {"message": f"Hello {current_user['username']}, you're authorized!"}
-
-

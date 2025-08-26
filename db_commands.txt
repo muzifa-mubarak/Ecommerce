@@ -119,4 +119,3 @@ UPDATE orders SET order_status = 'Pending';
 
 select * from orders;
 
-dpg-d14hvru3jp1c73begj3g-a.singapore-postgres.render.com
